@@ -9,43 +9,48 @@
       class="video"
       autoplay />
     <svg class="svg" width="100%" height="100%">
-      <defs>
-        <mask id="myMask">
-          <rect
-            x="0"
-            y="0"
-            width="100%"
-            height="100%"
-            style="stroke: none; fill: #ccc"
-          />
-          <rect
-            class="rectWhite"
-            width="200"
-            height="200"
-            x="50%"
-            y="50%"
-            style="fill: #000"
-          />
-        </mask>
-      </defs>
+      <mask id="mask">
+        <rect
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          style="stroke: none; fill: #fff"
+        />
+        <rect
+          width="200"
+          height="200"
+          x="50%"
+          y="50%"
+          transform="translate(-100, -150)"
+          style="fill: #000"
+        />
+      </mask>
       <rect
         x="0"
         y="0"
         width="100%"
         height="100%"
-        style="stroke: none; fill: rgba(0, 0, 0, 0.6); mask: url(#myMask)"
+        style="stroke: none; fill: rgba(0, 0, 0, 0.6);"
+        mask="url(#mask)"
       />
     </svg>
+  </div>
+  <div class="icon_back p-6 flex justify-center">
+    <div class="absolute left-6 top-6" @click="emits('close')">
+      返回
+    </div> <div>扫码</div>
   </div>
 </template>
 
 <script setup lang='ts'>
-import { BrowserMultiFormatReader, Result, NotFoundException, ChecksumException, FormatException } from '@zxing/library'
-import { ref, onMounted, defineEmits, nextTick, onUnmounted } from 'vue'
+import { BrowserMultiFormatReader, Result } from '@zxing/library'
+import { ref, onMounted, defineEmits, onUnmounted } from 'vue'
 
 interface Emits {
   (e: 'cameraQRcode', result:Result):void
   (e: 'getCameraList', list:any[]):void
+  (e: 'close'):void
 }
 const emits = defineEmits<Emits>()
 const videoDom = ref<null | HTMLVideoElement>(null)
@@ -62,39 +67,39 @@ const decodeContinuously = (codeReader:BrowserMultiFormatReader, selectedDeviceI
         codeReader && codeReader.reset()
       }
 
-      if (err) {
-        console.log(err)
-        // As long as this error belongs into one of the following categories
-        // the code reader is going to continue as excepted. Any other error
-        // will stop the decoding loop.
-        //
-        // Excepted Exceptions:
-        //  - NotFoundException
-        //  - ChecksumException
-        //  - FormatException
+      // if (err) {
+      //   console.log(err)
+      //   // As long as this error belongs into one of the following categories
+      //   // the code reader is going to continue as excepted. Any other error
+      //   // will stop the decoding loop.
+      //   //
+      //   // Excepted Exceptions:
+      //   //  - NotFoundException
+      //   //  - ChecksumException
+      //   //  - FormatException
 
-        if (err instanceof NotFoundException) {
-          console.log('No QR code found.')
-        }
+      //   if (err instanceof NotFoundException) {
+      //     console.log('No QR code found.')
+      //   }
 
-        if (err instanceof ChecksumException) {
-          console.log(
-            "A code was found, but it's read value was not valid."
-          )
-        }
+      //   if (err instanceof ChecksumException) {
+      //     console.log(
+      //       "A code was found, but it's read value was not valid."
+      //     )
+      //   }
 
-        if (err instanceof FormatException) {
-          console.log(
-            'A code was found, but it was in a invalid format.'
-          )
-        }
-      }
+      //   if (err instanceof FormatException) {
+      //     console.log(
+      //       'A code was found, but it was in a invalid format.'
+      //     )
+      //   }
+      // }
     }
   )
 }
 
 // 选中摄像头设备的 id
-const loading = ref(false)
+const loading = ref(true)
 const selectedDeviceId = ref('')
 const codeReader = ref<BrowserMultiFormatReader | null>(null)
 const initCodeReader = async () => {
@@ -105,23 +110,30 @@ const initCodeReader = async () => {
     .then((videoInputDevices) => {
       // 筛选后置摄像头
       // alert(`拥有多少:${JSON.stringify(videoInputDevices)}`)
+      // alert(JSON.stringify(videoInputDevices))
+
       // 安卓摄像头 查询有 7个后置摄像头
-      // ios 查询有 1个摄像头
       const backCameras = videoInputDevices.filter(device => {
         return device.kind === 'videoinput' && device.label.toLowerCase().includes('back')
       })
 
+      // ios 第一次获取，获取不到摄像机，只有默认的，授权后，才能获取到 (前置和后置摄像机)，需要将后置摄像机分离出来
+      const iosBackCameras = videoInputDevices.filter(device => {
+        return device.kind === 'videoinput' && device.label.includes('后置')
+      })
       // 检查是否有 后置摄像头
       if (backCameras.length > 0) {
         if (backCameras.length >= 4) {
           selectedDeviceId.value = backCameras[2].deviceId ?? ''
+        } else {
+          selectedDeviceId.value = backCameras[backCameras.length - 1].deviceId ?? ''
         }
+      } else if (iosBackCameras.length > 0) {
+        selectedDeviceId.value = iosBackCameras[iosBackCameras.length - 1].deviceId ?? ''
       } else {
         // 没有的话就取 列表中第一个
         selectedDeviceId.value = videoInputDevices[0].deviceId
       }
-      // alert(`后置:${JSON.stringify(backCameras)}`)
-      emits('getCameraList', videoInputDevices)
       decodeContinuously(codeReader.value as BrowserMultiFormatReader, selectedDeviceId.value)
     })
     .catch((err) => {
@@ -130,15 +142,12 @@ const initCodeReader = async () => {
 }
 // 进入界面就开始
 onMounted(() => {
-  loading.value = true
-  // codeReader.value && codeReader.value.reset()
-  initCodeReader()
-  nextTick(() => {
-    videoDom.value?.addEventListener('play', () => {
-      setTimeout(() => {
-        loading.value = false
-      }, 500)
-    })
+  navigator.mediaDevices.getUserMedia({ video: true }).then(res => {
+    initCodeReader()
+  }).catch((err) => {
+    console.log(err)
+    alert('禁止打开摄像头')
+    emits('close')
   })
 })
 onUnmounted(() => {
@@ -163,6 +172,16 @@ video {
   object-fit: cover;
 }
 
+.icon_back {
+  position: fixed;
+  top: 0;
+  left: 0;
+  color: white;
+  height: 100vh;
+  width: 100%;
+  z-index: 999999;
+}
+
 .videoBox {
   position: fixed;
   top: 0;
@@ -175,13 +194,9 @@ video {
   width: 100%;
 }
 
-.svg .rectWhite {
-  transform: translate(-100px, -150px)
-}
-
 .loading {
   position: fixed;
-  z-index: -1;
+  z-index: -3;
   width: 100%;
   height: 100% !important;
   background: #9b9b9b;

@@ -35,7 +35,11 @@
     </div>
   </div>
   <transition name="move">
-    <QRcamera v-if="isQRCamera" @cameraQRcode="cameraQRcode" @getCameraList="getCameraList" />
+    <QRcamera
+      v-if="isQRCamera"
+      @cameraQRcode="cameraQRcode"
+      @getCameraList="getCameraList"
+      @close="isQRCamera = false" />
   </transition>
 </template>
 
