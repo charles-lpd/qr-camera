@@ -30,7 +30,7 @@
         摄像机列表: {{ cameraList.length }}
       </div>
       <div v-for="(item,index) in cameraList" :key="index" class="mt-2">
-        label: {{ item.label }}
+        json: {{ item }}
       </div>
     </div>
   </div>

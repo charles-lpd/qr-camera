@@ -24,7 +24,7 @@
           y="50%"
           rx="10"
           ry="10"
-          transform="translate(-100, -150)"
+          transform="translate(-100, -170)"
           style="fill: #000"
         />
       </mask>
@@ -153,9 +153,8 @@ const initCodeReader = async () => {
 // 进入界面就开始
 onMounted(() => {
   // initCodeReader()
-  navigator.mediaDevices.getUserMedia({ video: true }).then(res => {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } } }).then(res => {
     res.getTracks().forEach(res => res.stop())
-    // alert('打开摄像头')
     initCodeReader()
   }).catch(() => {
     alert('禁止打开摄像头')
