@@ -22,6 +22,8 @@
           height="200"
           x="50%"
           y="50%"
+          rx="10"
+          ry="10"
           transform="translate(-100, -150)"
           style="fill: #000"
         />
@@ -54,6 +56,7 @@ interface Emits {
 }
 const emits = defineEmits<Emits>()
 const videoDom = ref<null | HTMLVideoElement>(null)
+const isResult = ref(false)
 // const router = useRouter()
 const decodeContinuously = (codeReader:BrowserMultiFormatReader, selectedDeviceId:string) => {
   codeReader?.decodeFromVideoDevice(
@@ -63,8 +66,15 @@ const decodeContinuously = (codeReader:BrowserMultiFormatReader, selectedDeviceI
       if (result) {
         // properly decoded qr code
         videoDom.value && videoDom.value.pause()
-        emits('cameraQRcode', result)
-        codeReader && codeReader.reset()
+        if (!isResult.value) {
+          isResult.value = true
+          setTimeout(() => {
+            if (isResult.value) {
+              emits('cameraQRcode', result)
+              codeReader && codeReader.reset()
+            }
+          }, 1000)
+        }
       }
 
       // if (err) {
@@ -111,7 +121,6 @@ const initCodeReader = async () => {
       // 筛选后置摄像头
       // alert(`拥有多少:${JSON.stringify(videoInputDevices)}`)
       // alert(JSON.stringify(videoInputDevices))
-
       // 安卓摄像头 查询有 7个后置摄像头
       const backCameras = videoInputDevices.filter(device => {
         return device.kind === 'videoinput' && device.label.toLowerCase().includes('back')
@@ -134,6 +143,7 @@ const initCodeReader = async () => {
         // 没有的话就取 列表中第一个
         selectedDeviceId.value = videoInputDevices[0].deviceId
       }
+      emits('getCameraList', videoInputDevices)
       decodeContinuously(codeReader.value as BrowserMultiFormatReader, selectedDeviceId.value)
     })
     .catch((err) => {
@@ -142,10 +152,12 @@ const initCodeReader = async () => {
 }
 // 进入界面就开始
 onMounted(() => {
+  // initCodeReader()
   navigator.mediaDevices.getUserMedia({ video: true }).then(res => {
+    res.getTracks().forEach(res => res.stop())
+    // alert('打开摄像头')
     initCodeReader()
-  }).catch((err) => {
-    console.log(err)
+  }).catch(() => {
     alert('禁止打开摄像头')
     emits('close')
   })

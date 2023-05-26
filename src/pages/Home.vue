@@ -55,7 +55,6 @@ const cameraQRcode = (result:Result) => {
   isQRCamera.value = false
 }
 const getCameraList = (list:any[]) => {
-  console.log(list)
   cameraList.value = list
 }
 </script>
