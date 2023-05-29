@@ -29,14 +29,22 @@
       <div class="mt-5">
         摄像机列表: {{ cameraList.length }}
       </div>
-      <div v-for="(item,index) in cameraList" :key="index" class="mt-2">
-        json: {{ item }}
+      <div v-for="(item,index) in cameraList" :key="index" class="mt-2 flex items-center">
+        <input
+          :id="item.label"
+          v-model="deviceId"
+          class="mr-2"
+          type="radio"
+          name="cameralist"
+          :value="item.deviceId">{{ item.label }}
       </div>
     </div>
   </div>
   <transition name="move">
     <QRcamera
       v-if="isQRCamera"
+      :device-id="deviceId"
+      @updatedDeviceID="updatedDeviceID"
       @cameraQRcode="cameraQRcode"
       @getCameraList="getCameraList"
       @close="isQRCamera = false" />
@@ -47,6 +55,7 @@
 import { Result } from '@zxing/library'
 import { ref } from 'vue'
 import QRcamera from './QRCamera.vue'
+const deviceId = ref('')
 const isQRCamera = ref(false)
 const cameraList = ref<any>([])
 const resultText = ref<Result | null>(null)
@@ -56,6 +65,9 @@ const cameraQRcode = (result:Result) => {
 }
 const getCameraList = (list:any[]) => {
   cameraList.value = list
+}
+const updatedDeviceID = (device:string) => {
+  deviceId.value = device
 }
 </script>
 

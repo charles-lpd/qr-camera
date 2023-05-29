@@ -6,11 +6,6 @@ const routes = [
     path: '/',
     name: 'home',
     component: Home
-  },
-  {
-    path: '/qr-camera',
-    name: 'qr-camera',
-    component: async () => await import('../pages/QRCamera.vue')
   }
 ]
 
