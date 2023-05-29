@@ -1,47 +1,49 @@
 <template>
-  <div class="videoBox">
-    <div v-if="loading" class="loading">
-      loading...
-    </div>
-    <video
-      id="video"
-      ref="videoDom"
-      class="video"
-      autoplay />
-    <svg class="svg" width="100%" height="100%">
-      <mask id="mask">
+  <div class="video-container">
+    <div class="videoBox">
+      <div v-if="loading" class="loading">
+        loading...
+      </div>
+      <video
+        id="video"
+        ref="videoDom"
+        class="video"
+        autoplay />
+      <svg class="svg" width="100%" height="100%">
+        <mask id="mask">
+          <rect
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            style="stroke: none; fill: #fff"
+          />
+          <rect
+            width="200"
+            height="200"
+            x="50%"
+            y="50%"
+            rx="10"
+            ry="10"
+            transform="translate(-100, -170)"
+            style="fill: #000"
+          />
+        </mask>
         <rect
           x="0"
           y="0"
           width="100%"
           height="100%"
-          style="stroke: none; fill: #fff"
+          style="stroke: none; fill: rgba(0, 0, 0, 0.6);"
+          mask="url(#mask)"
         />
-        <rect
-          width="200"
-          height="200"
-          x="50%"
-          y="50%"
-          rx="10"
-          ry="10"
-          transform="translate(-100, -170)"
-          style="fill: #000"
-        />
-      </mask>
-      <rect
-        x="0"
-        y="0"
-        width="100%"
-        height="100%"
-        style="stroke: none; fill: rgba(0, 0, 0, 0.6);"
-        mask="url(#mask)"
-      />
-    </svg>
-  </div>
-  <div class="icon_back p-6 flex justify-center">
-    <div class="absolute left-6 top-6" @click="emits('close')">
-      返回
-    </div> <div>扫码</div>
+      </svg>
+    </div>
+    <div class="back-container">
+      <div class="back" @click="emits('close')">
+        返回
+      </div> <div>扫码</div>
+    </div>
   </div>
 </template>
 
@@ -78,7 +80,7 @@ const decodeContinuously = (codeReader:BrowserMultiFormatReader, selectedDeviceI
               emits('cameraQRcode', result)
               codeReader && codeReader.reset()
             }
-          }, 1000)
+          }, 500)
         }
       }
 
@@ -204,7 +206,7 @@ onUnmounted(() => {
 
 </script>
 
-<style>
+<style lang="scss" scoped>
 html,
 body {
   padding: 0;
@@ -212,44 +214,66 @@ body {
   position: relative;
 }
 
-video {
-  position: absolute;
-  width: 100%;
-  height: 100% !important;
-  z-index: -2;
-  object-fit: cover;
-}
-
-.icon_back {
+.video-container {
   position: fixed;
   top: 0;
   left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  .video {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100% !important;
+    z-index: -2;
+    object-fit: cover;
+  }
+
+  .videoBox {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .svg {
+    width: 100%;
+  }
+
+  .loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -3;
+    width: 100%;
+    height: 100% !important;
+    background: #9b9b9b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.back-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
   color: white;
   height: 100vh;
   width: 100%;
   z-index: 999999;
-}
+  padding: 24px;
 
-.videoBox {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.svg {
-  width: 100%;
-}
-
-.loading {
-  position: fixed;
-  z-index: -3;
-  width: 100%;
-  height: 100% !important;
-  background: #9b9b9b;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  .back {
+    position: absolute;
+    left: 24px;
+    top: 24px;
+  }
 }
 </style>
