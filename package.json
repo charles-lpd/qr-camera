@@ -50,8 +50,7 @@
     "serve": "^14.2.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "typescript": "4.3.5",
-    "webpack-encoding-plugin": "0.3.1",
-    "avsc": "https://github.com/Bundlr-Network/avsc#csp-fixes"
+    "webpack-encoding-plugin": "0.3.1"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"
