@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../pages/Home.vue'
-
+import Camera from '../pages/Test.vue'
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
+    component: Camera
   },
   {
     path: '/test',
     name: 'test',
-    component: async () => await import('@/pages/Test.vue')
+    component: Home
   }
 ]
 
