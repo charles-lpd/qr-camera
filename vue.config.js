@@ -46,11 +46,5 @@ module.exports = {
         }
       }
     }
-  },
-  devServer: {
-    host: '0.0.0.0',
-    open: true,
-    https: true,
-    hot: true
   }
 }
