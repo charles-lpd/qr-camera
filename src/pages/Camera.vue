@@ -12,17 +12,41 @@
     <button @click="test">
       test
     </button>
+    <div>
+      imToken {{ data.imToken }}
+    </div>
+    <div>
+      metamask {{ data.metamask }}
+    </div>
+    <div>
+      bitkeep {{ data.bitkeep }}
+    </div>
+    <div>
+      coinbase {{ data.coinbase }}
+    </div>
   </div>
 </template>
 
 <script setup lang='ts'>
 import { BrowserMultiFormatReader } from '@zxing/library'
-import { ref } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 
 const codeReader = ref(new BrowserMultiFormatReader())
 const videoElement = ref<HTMLVideoElement | null>(null)
 const videoInput = ref<MediaStream | null>(null)
-
+const data = reactive({
+  metamask: false,
+  bitkeep: false,
+  imToken: false,
+  coinbase: false
+})
+onMounted(async () => {
+  data.metamask = window.ethereum.isMetaMask ?? false
+  data.bitkeep = window.isBitKeep ?? false
+  data.imToken = window.imToken ?? false
+  data.coinbase = window.ethereum.isCoinbaseWallet ?? false
+  console.log(data)
+})
 const test = () => {
   navigator.mediaDevices.getUserMedia({
     video: {
